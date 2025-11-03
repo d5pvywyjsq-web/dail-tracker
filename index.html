@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ежедневные отчёты</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 1rem;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    section {
+      background: white;
+      padding: 1rem;
+      margin-bottom: 1.2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 1.3rem;
+    }
+    label {
+      display: block;
+      margin: 0.6rem 0 0.3rem;
+      font-weight: 500;
+    }
+    input, button {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 0.6rem;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      background-color: #2196F3;
+      color: white;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background-color: #1976D2;
+    }
+    #calendar-entries {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 0.6rem;
+    }
+    .entry {
+      background: #e3f2fd;
+      padding: 0.6rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+    #report-chart {
+      width: 100% !important;
+      max-width: 600px;
+      height: 200px !important;
+    }
+    @media (max-width: 600px) {
+      body {
+        padding: 0.8rem;
+      }
+      input, button {
+        padding: 0.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📊 Ежедневные отчёты</h1>
+  </header>
+
+  <main>
+    <section id="input-section">
+      <h2>Добавить запись</h2>
+      <label for="category">Категория</label>
+      <input type="text" id="category" placeholder="Напр.: Еда, Транспорт, Доход...">
+
+      <label for="product">Продукт / Услуга</label>
+      <input type="text" id="product" placeholder="Название">
+
+      <label for="value">Показатель (число)</label>
+      <input type="number" id="value" placeholder="0" step="any">
+
+      <label for="report-date">Дата</label>
+      <input type="date" id="report-date">
+
+      <button id="add-btn">Добавить запись</button>
+    </section>
+
+    <section id="summary">
+      <h2>Общие показатели</h2>
+      <p id="total-value" style="font-size: 1.4rem; font-weight: bold;">Всего: 0</p>
+    </section>
+
+    <section id="calendar">
+      <h2>Календарь записей</h2>
+      <div id="calendar-entries">Нет записей</div>
+    </section>
+
+    <section id="chart">
+      <h2>График по дням</h2>
+      <canvas id="report-chart"></canvas>
+    </section>
+  </main>
+
+  <!-- Chart.js из CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    // Установка сегодняшней даты
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('report-date').value = today;
+
+    // Загрузка данных из localStorage
+    let reports = JSON.parse(localStorage.getItem('dailyReports')) || [];
+
+    // Сохранение в localStorage
+    function saveReports() {
+      localStorage.setItem('dailyReports', JSON.stringify(reports));
+    }
+
+    // Обновление итога
+    function updateSummary() {
+      const total = reports.reduce((sum, r) => sum + Number(r.value), 0);
+      document.getElementById('total-value').textContent = `Всего: ${total.toFixed(2)}`;
+    }
+
+    // Рендер календаря
+    function renderCalendar() {
+      const container = document.getElementById('calendar-entries');
+      if (reports.length === 0) {
+        container.textContent = 'Нет записей';
+        return;
+      }
+
+      const dateMap = {};
+      reports.forEach(r => {
+        if (!dateMap[r.date]) dateMap[r.date] = 0;
+        dateMap[r.date] += Number(r.value);
+      });
+
+      container.innerHTML = '';
+      Object.keys(dateMap)
+        .sort((a, b) => new Date(b) - new Date(a)) // сначала новые
+        .forEach(date => {
+          const div = document.createElement('div');
+          div.className = 'entry';
+          const formattedDate = date.split('-').slice(1).join('.'); // ДД.ММ
+          div.innerHTML = `<strong>${formattedDate}</strong><br>Σ: ${dateMap[date].toFixed(1)}`;
+          container.appendChild(div);
+        });
+    }
+
+    // График
+    let reportChart = null;
+    function renderChart() {
+      const ctx = document.getElementById('report-chart').getContext('2d');
+
+      // Группировка по дате
+      const dailyTotals = {};
+      reports.forEach(r => {
+        if (!dailyTotals[r.date]) dailyTotals[r.date] = 0;
+        dailyTotals[r.date] += Number(r.value);
+      });
+
+      const sortedDates = Object.keys(dailyTotals).sort((a, b) => new Date(a) - new Date(b));
+      const labels = sortedDates.map(d => d.split('-').slice(1).join('.'));
+      const data = sortedDates.map(d => dailyTotals[d]);
+
+      if (reportChart) reportChart.destroy();
+
+      reportChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Сумма за день',
+            data: data,
+            backgroundColor: 'rgba(33, 150, 243, 0.7)',
+            borderColor: 'rgba(33, 150, 243, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: { beginAtZero: true, ticks: { precision: 0 } },
+            x: { title: { display: true, text: 'Даты' } }
+          }
+        }
+      });
+    }
+
+    // Обработчик добавления
+    document.getElementById('add-btn').addEventListener('click', () => {
+      const category = document.getElementById('category').value.trim();
+      const product = document.getElementById('product').value.trim();
+      const value = parseFloat(document.getElementById('value').value);
+      const date = document.getElementById('report-date').value;
+
+      if (!category || !product || isNaN(value) || !date) {
+        alert('Пожалуйста, заполните все поля корректно.');
+        return;
+      }
+
+      reports.push({ category, product, value, date });
+      saveReports();
+      updateSummary();
+      renderCalendar();
+      renderChart();
+
+      // Сброс полей
+      document.getElementById('category').value = '';
+      document.getElementById('product').value = '';
+      document.getElementById('value').value = '';
+      document.getElementById('category').focus();
+    });
+
+    // Инициализация
+    updateSummary();
+    renderCalendar();
+    renderChart();
+  </script>
+</body>
+</html>
