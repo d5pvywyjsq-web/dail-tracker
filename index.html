@@ -35,9 +35,7 @@
       --shadow: 0 4px 16px rgba(0,0,0,0.3);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       font-family: 'Segoe UI', system-ui, sans-serif;
@@ -45,25 +43,24 @@
       color: var(--text-primary);
       margin: 0;
       padding: 1rem;
-      transition: background-color 0.3s, color 0.3s;
+      transition: background-color 0.3s;
     }
 
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.2rem;
       flex-wrap: wrap;
     }
 
     h1 {
       margin: 0;
-      font-size: 1.8rem;
+      font-size: 1.7rem;
       background: linear-gradient(90deg, #6a5acd, #ff6f61);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      font-weight: 700;
     }
 
     #theme-toggle {
@@ -71,35 +68,21 @@
       color: white;
       border: none;
       border-radius: 50%;
-      width: 44px;
-      height: 44px;
-      font-size: 1.2rem;
+      width: 42px;
+      height: 42px;
+      font-size: 1.1rem;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.2s;
-    }
-
-    #theme-toggle:hover {
-      background: var(--button-hover);
     }
 
     section {
       background: var(--card-bg);
       padding: 1.2rem;
-      margin-bottom: 1.4rem;
+      margin-bottom: 1.3rem;
       border-radius: 14px;
       box-shadow: var(--shadow);
-      transition: background 0.3s, box-shadow 0.3s;
-    }
-
-    h2 {
-      margin-top: 0;
-      font-size: 1.35rem;
-      color: var(--text-primary);
-      margin-bottom: 1rem;
-      font-weight: 600;
     }
 
     label {
@@ -109,7 +92,7 @@
       color: var(--text-secondary);
     }
 
-    input {
+    input, select {
       width: 100%;
       padding: 0.65rem;
       border: 1px solid var(--border-color);
@@ -130,65 +113,39 @@
       border: none;
       border-radius: 10px;
       padding: 0.75rem;
-      font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
       transition: background 0.2s;
+      width: 100%;
     }
 
     button:hover {
       background: var(--button-hover);
     }
 
-    #total-value {
-      font-size: 1.5rem;
+    .product-item {
+      background: var(--entry-bg);
+      padding: 1rem;
+      border-radius: 12px;
+      margin-bottom: 0.8rem;
+    }
+
+    .product-title {
       font-weight: 700;
-      color: var(--accent);
+      margin: 0 0 0.3rem;
+      color: var(--button-bg);
+    }
+
+    .product-summary {
+      font-size: 0.95rem;
       margin: 0;
     }
 
-    #calendar-entries {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-      gap: 0.8rem;
-    }
-
-    .entry {
-      background: var(--entry-bg);
-      padding: 0.8rem;
-      border-radius: 10px;
-      text-align: center;
-      font-size: 0.88rem;
-      font-weight: 600;
-      transition: transform 0.2s;
-    }
-
-    .entry:hover {
-      transform: translateY(-2px);
-    }
-
-    .entry strong {
-      display: block;
-      color: var(--button-bg);
-      margin-bottom: 0.2rem;
-    }
-
-    #report-chart {
-      width: 100% !important;
-      max-width: 700px;
-      height: 220px !important;
-      margin-top: 0.5rem;
-    }
+    .hidden { display: none; }
 
     @media (max-width: 600px) {
-      header {
-        flex-direction: column;
-        gap: 1rem;
-        align-items: flex-start;
-      }
-      h1 {
-        font-size: 1.6rem;
-      }
+      header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+      h1 { font-size: 1.5rem; }
     }
   </style>
 </head>
@@ -200,179 +157,195 @@
 
   <main>
     <section id="input-section">
-      <h2>➕ Добавить запись</h2>
-      <label for="category">Категория</label>
-      <input type="text" id="category" placeholder="Напр.: Еда, Доход, Спорт...">
+      <h2>➕ Новая запись</h2>
 
-      <label for="product">Продукт / Услуга</label>
-      <input type="text" id="product" placeholder="Что именно?">
-
-      <label for="value">Показатель (число)</label>
-      <input type="number" id="value" placeholder="0" step="any">
-
-      <label for="report-date">Дата</label>
+      <label for="report-date">📅 Дата</label>
       <input type="date" id="report-date">
 
-      <button id="add-btn">💾 Сохранить запись</button>
+      <label for="category-select">🗂️ Категория</label>
+      <select id="category-select">
+        <option value="">— Выберите или создайте —</option>
+      </select>
+      <input type="text" id="new-category" placeholder="Или введите новую категорию" style="margin-top: 0.3rem;">
+
+      <label for="product-select">🍎 Продукт</label>
+      <select id="product-select" disabled>
+        <option value="">— Сначала выберите категорию —</option>
+      </select>
+      <input type="text" id="new-product" placeholder="Или введите новый продукт" class="hidden" style="margin-top: 0.3rem;">
+
+      <label for="value">🔢 Значение</label>
+      <input type="number" id="value" placeholder="0" step="any">
+
+      <button id="add-btn">💾 Сохранить</button>
     </section>
 
-    <section id="summary">
-      <h2>📈 Общий итог</h2>
-      <p id="total-value">Всего: 0</p>
-    </section>
-
-    <section id="calendar">
-      <h2>📅 Записи по дням</h2>
-      <div id="calendar-entries">Нет данных</div>
-    </section>
-
-    <section id="chart">
-      <h2>📊 График динамики</h2>
-      <canvas id="report-chart"></canvas>
+    <section id="products-stats">
+      <h2>📈 Все продукты и статистика</h2>
+      <div id="products-list">Нет данных</div>
     </section>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <script>
-    // Тема
+    // === Тема ===
     const themeToggle = document.getElementById('theme-toggle');
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
     themeToggle.textContent = savedTheme === 'light' ? '🌓' : '🌕';
-
     themeToggle.addEventListener('click', () => {
-      const current = document.documentElement.getAttribute('data-theme');
-      const newTheme = current === 'light' ? 'dark' : 'light';
+      const newTheme = savedTheme === 'light' ? 'dark' : 'light';
       document.documentElement.setAttribute('data-theme', newTheme);
       localStorage.setItem('theme', newTheme);
       themeToggle.textContent = newTheme === 'light' ? '🌓' : '🌕';
     });
 
-    // Установка сегодняшней даты
+    // === Дата сегодня ===
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('report-date').value = today;
 
-    // Данные
+    // === Данные ===
     let reports = JSON.parse(localStorage.getItem('dailyReports')) || [];
 
     function saveReports() {
       localStorage.setItem('dailyReports', JSON.stringify(reports));
     }
 
-    function updateSummary() {
-      const total = reports.reduce((sum, r) => sum + Number(r.value), 0);
-      document.getElementById('total-value').textContent = `Всего: ${total.toFixed(2)}`;
+    // === Вспомогательные функции ===
+    function getUniqueCategories() {
+      return [...new Set(reports.map(r => r.category))].sort();
     }
 
-    function renderCalendar() {
-      const container = document.getElementById('calendar-entries');
+    function getProductsInCategory(category) {
+      return [...new Set(reports.filter(r => r.category === category).map(r => r.product))].sort();
+    }
+
+    // === Обновление выпадающих списков ===
+    function updateCategorySelect() {
+      const select = document.getElementById('category-select');
+      const newCategoryInput = document.getElementById('new-category');
+      select.innerHTML = '<option value="">— Выберите или создайте —</option>';
+      getUniqueCategories().forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.textContent = cat;
+        select.appendChild(opt);
+      });
+      newCategoryInput.value = '';
+    }
+
+    function updateProductSelect(category) {
+      const select = document.getElementById('product-select');
+      const newProductInput = document.getElementById('new-product');
+      if (!category) {
+        select.innerHTML = '<option value="">— Сначала выберите категорию —</option>';
+        select.disabled = true;
+        newProductInput.classList.add('hidden');
+        return;
+      }
+      select.disabled = false;
+      select.innerHTML = '<option value="">— Выберите или создайте —</option>';
+      getProductsInCategory(category).forEach(prod => {
+        const opt = document.createElement('option');
+        opt.value = prod;
+        opt.textContent = prod;
+        select.appendChild(opt);
+      });
+      newProductInput.classList.remove('hidden');
+      newProductInput.value = '';
+    }
+
+    // === Обновление статистики по продуктам ===
+    function renderProductsStats() {
+      const container = document.getElementById('products-list');
       if (reports.length === 0) {
         container.textContent = 'Нет данных';
         return;
       }
 
-      const dateMap = {};
+      // Группировка по категории → продукт
+      const grouped = {};
       reports.forEach(r => {
-        if (!dateMap[r.date]) dateMap[r.date] = 0;
-        dateMap[r.date] += Number(r.value);
+        if (!grouped[r.category]) grouped[r.category] = {};
+        if (!grouped[r.category][r.product]) grouped[r.category][r.product] = [];
+        grouped[r.category][r.product].push(r);
       });
 
       container.innerHTML = '';
-      Object.keys(dateMap)
-        .sort((a, b) => new Date(b) - new Date(a))
-        .forEach(date => {
-          const dayTotal = dateMap[date].toFixed(1);
-          const day = date.split('-')[2];
-          const month = date.split('-')[1];
+
+      for (const category in grouped) {
+        const catHeader = document.createElement('h3');
+        catHeader.textContent = `🗂️ ${category}`;
+        catHeader.style.marginTop = '1.2rem';
+        catHeader.style.marginBottom = '0.6rem';
+        catHeader.style.color = 'var(--text-primary)';
+        container.appendChild(catHeader);
+
+        for (const product in grouped[category]) {
+          const data = grouped[category][product];
+          const total = data.reduce((sum, r) => sum + Number(r.value), 0);
+          const lastEntry = data.reduce((latest, r) => r.date > latest.date ? r : latest, data[0]);
 
           const div = document.createElement('div');
-          div.className = 'entry';
-          div.innerHTML = `<strong>${day}.${month}</strong>${dayTotal}`;
+          div.className = 'product-item';
+          div.innerHTML = `
+            <div class="product-title">${product}</div>
+            <p class="product-summary">Всего: ${total.toFixed(2)} • Последнее: ${lastEntry.value} (${lastEntry.date.split('-').slice(1).join('.')})</p>
+          `;
           container.appendChild(div);
-        });
-    }
-
-    let reportChart = null;
-    function renderChart() {
-      const ctx = document.getElementById('report-chart').getContext('2d');
-
-      const dailyTotals = {};
-      reports.forEach(r => {
-        if (!dailyTotals[r.date]) dailyTotals[r.date] = 0;
-        dailyTotals[r.date] += Number(r.value);
-      });
-
-      const sortedDates = Object.keys(dailyTotals).sort();
-      const labels = sortedDates.map(d => d.split('-').slice(1).join('.'));
-      const data = sortedDates.map(d => dailyTotals[d]);
-
-      if (reportChart) reportChart.destroy();
-
-      reportChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Сумма за день',
-             data,
-            borderColor: '#6a5acd',
-            backgroundColor: 'var(--chart-bg)',
-            borderWidth: 3,
-            pointBackgroundColor: '#ff6f61',
-            pointRadius: 5,
-            fill: true,
-            tension: 0.3
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              grid: { color: 'rgba(128,128,128,0.1)' },
-              ticks: { color: 'var(--text-secondary)' }
-            },
-            x: {
-              grid: { display: false },
-              ticks: { color: 'var(--text-secondary)' }
-            }
-          }
         }
-      });
+      }
     }
+
+    // === События ===
+    document.getElementById('category-select').addEventListener('change', function() {
+      const category = this.value;
+      updateProductSelect(category);
+      document.getElementById('new-product').value = '';
+    });
+
+    document.getElementById('new-category').addEventListener('input', function() {
+      if (this.value.trim()) {
+        document.getElementById('category-select').value = '';
+        updateProductSelect(this.value.trim());
+      } else {
+        updateProductSelect(document.getElementById('category-select').value);
+      }
+    });
 
     document.getElementById('add-btn').addEventListener('click', () => {
-      const category = document.getElementById('category').value.trim();
-      const product = document.getElementById('product').value.trim();
-      const value = parseFloat(document.getElementById('value').value);
       const date = document.getElementById('report-date').value;
+      const selectedCategory = document.getElementById('category-select').value;
+      const newCategory = document.getElementById('new-category').value.trim();
+      const selectedProduct = document.getElementById('product-select').value;
+      const newProduct = document.getElementById('new-product').value.trim();
+      const value = parseFloat(document.getElementById('value').value);
 
-      if (!category || !product || isNaN(value) || !date) {
-        alert('Пожалуйста, заполните все поля.');
+      const category = newCategory || selectedCategory;
+      const product = newProduct || selectedProduct;
+
+      if (!date || !category || !product || isNaN(value)) {
+        alert('Заполните все поля корректно.');
         return;
       }
 
-      reports.push({ category, product, value, date });
+      reports.push({ date, category, product, value });
       saveReports();
-      updateSummary();
-      renderCalendar();
-      renderChart();
+      updateCategorySelect();
+      renderProductsStats();
 
-      document.getElementById('category').value = '';
-      document.getElementById('product').value = '';
+      // Сброс
       document.getElementById('value').value = '';
-      document.getElementById('category').focus();
+      document.getElementById('new-category').value = '';
+      document.getElementById('new-product').value = '';
+      document.getElementById('category-select').value = '';
+      document.getElementById('product-select').innerHTML = '<option value="">— Сначала выберите категорию —</option>';
+      document.getElementById('product-select').disabled = true;
+      document.getElementById('new-product').classList.add('hidden');
     });
 
-    // Инициализация
-    updateSummary();
-    renderCalendar();
-    renderChart();
+    // === Инициализация ===
+    updateCategorySelect();
+    renderProductsStats();
   </script>
 </body>
 </html>
